@@ -28,6 +28,8 @@ const (
 	ScopeName = "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	// GRPCStatusCodeKey is convention for numeric status code of a gRPC request.
 	GRPCStatusCodeKey = attribute.Key("rpc.grpc.status_code")
+	// GRPCStatusStringKey is our extension that returns a text representation of a gRPC status code.
+	GRPCStatusStringKey = attribute.Key("rpc.grpc.status_string")
 )
 
 // Filter is a predicate used to determine whether a given request in

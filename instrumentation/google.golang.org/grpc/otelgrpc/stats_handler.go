@@ -188,18 +188,21 @@ func (c *config) handleRPC(ctx context.Context, rs stats.RPCStats) {
 	case *stats.OutTrailer:
 	case *stats.End:
 		var rpcStatusAttr attribute.KeyValue
+		var rpcStatusAttrString attribute.KeyValue
 
 		if rs.Error != nil {
 			s, _ := status.FromError(rs.Error)
 			span.SetStatus(codes.Error, s.Message())
 			rpcStatusAttr = semconv.RPCGRPCStatusCodeKey.Int(int(s.Code()))
+			rpcStatusAttrString = GRPCStatusStringKey.String(s.Code().String())
 		} else {
 			rpcStatusAttr = semconv.RPCGRPCStatusCodeKey.Int(int(grpc_codes.OK))
+			rpcStatusAttrString = GRPCStatusStringKey.String(grpc_codes.OK.String())
 		}
-		span.SetAttributes(rpcStatusAttr)
+		span.SetAttributes(rpcStatusAttr, rpcStatusAttrString)
 		span.End()
 
-		metricAttrs = append(metricAttrs, rpcStatusAttr)
+		metricAttrs = append(metricAttrs, rpcStatusAttr, rpcStatusAttrString)
 		c.rpcDuration.Record(wctx, float64(rs.EndTime.Sub(rs.BeginTime)), metric.WithAttributes(metricAttrs...))
 		c.rpcRequestsPerRPC.Record(wctx, gctx.messagesReceived, metric.WithAttributes(metricAttrs...))
 		c.rpcResponsesPerRPC.Record(wctx, gctx.messagesSent, metric.WithAttributes(metricAttrs...))
